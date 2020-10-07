@@ -11,14 +11,14 @@ export default function RegistrationScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { state, signup, clearErrorMessage } = useContext(AuthContext);
+  const { signup, errorMessage } = useContext(AuthContext);
+
+  if (errorMessage) {
+    alert("Passwords don't match.");
+  }
 
   const onFooterLinkPress = () => {
     navigation.navigate("Login");
-  };
-
-  const onRegisterPress = () => {
-    signup();
   };
 
   return (
@@ -71,7 +71,9 @@ export default function RegistrationScreen({ navigation }) {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={() => onRegisterPress()}
+          onPress={() => {
+            signup({ email, password, confirmPassword, fullName });
+          }}
         >
           <Text style={styles.buttonTitle}>Create account</Text>
         </TouchableOpacity>

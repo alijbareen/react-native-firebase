@@ -14,6 +14,9 @@ const authReducer = (state, action) => {
       return { ...state, errorMessage: "" };
     case "signout":
       return { user: null, errorMessage: "" };
+
+    case "error_password":
+      return { ...state, errorMessage: "Passwords don't match." };
     default:
       return state;
   }
@@ -54,14 +57,22 @@ const signin = (dispatch) => async ({ email, password }) => {
   }
 };
 
-const signup = (dispatch) => async ({ email, password }) => {
+const signup = (dispatch) => ({
+  email,
+  password,
+  confirmPassword,
+  fullName,
+}) => {
   try {
+    console.log(email);
+    console.log(password);
+    console.log(fullName);
+
     if (password !== confirmPassword) {
-      alert("Passwords don't match.");
-      return;
+      dispatch({ type: "error_password", payload: "Passwords don't match" });
     }
 
-    const response = await firebase
+    firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
@@ -76,17 +87,19 @@ const signup = (dispatch) => async ({ email, password }) => {
           .doc(uid)
           .set(data)
           .then(() => {
-            navigate("Home", { user: data });
+            dispatch({ type: "signup", payload: data });
+
+            navigate("Login", { user: data });
           })
           .catch((error) => {
+            console.log("err1");
             alert(error);
           });
       })
       .catch((error) => {
+        console.log("err2");
         alert(error);
       });
-
-    dispatch({ type: "signup", payload: response.data });
 
     navigate("Home");
   } catch (err) {
